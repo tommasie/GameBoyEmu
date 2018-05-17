@@ -2,7 +2,8 @@
 #include "gameboy.h"
 int main()
 {
-    printf("Hello World!\n");
+    init();
     open_game();
+    show_nintendo_logo();
     return 0;
 }
