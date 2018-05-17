@@ -56,6 +56,9 @@ void init()
     memset(ram_banks,0,sizeof(ram_banks));
     current_ram_bank = 0;
     ram_enabled = 0;
+
+    //Timers
+    divider_counter = 0;
 }
 
 void write_memory(WORD address, BYTE data) {
@@ -80,6 +83,20 @@ void write_memory(WORD address, BYTE data) {
 
     //[FEA0-FEFF] Not Usable
     else if(address >= 0xFEA0 && address < 0xFF00) {}
+
+    else if(address == DIV) {
+        main_rom[DIV] = 0;
+    }
+
+    //Game is trying to change the value of the frequency
+    else if(address == TMC) {
+        BYTE current_freq = get_clock_frequency();
+        cartridge_memory[TMC] = data;
+        BYTE new_freq = get_clock_frequency();
+        if(current_freq != new_freq) {
+            set_clock_frequency();
+        }
+    }
 
     //Otherwise write
     else {
@@ -174,3 +191,55 @@ void check_game_banking_mode()
     //RAM
     current_ram_bank = cartridge_memory[0x0148];
 }
+
+BYTE clock_enabled()
+{
+    return read_memory(TMC) & 0b0100 != 0 ? 1 : 0;
+}
+
+void update_timers(int cycles)
+{
+    increase_divider_register(cycles);
+
+    if(clock_enabled()) {
+        timer_counter -= cycles;
+        //Update the timer
+        if(timer_counter < 0) {
+            set_clock_frequency();
+            //Manage the overflow (8-bit register)
+            if(read_memory(TIMA) == 255) {
+                //Reset TIMA value with the one in TMA
+                write_memory(TIMA, read_memory(TMA));
+                //request_interrupt(2);
+            } else {
+                write_memory(TIMA, read_memory(TIMA + 1));
+            }
+        }
+    }
+}
+
+void increase_divider_register(int cycles)
+{
+    divider_counter += cycles;
+    if(divider_counter >= 255) {
+        divider_counter = 0;
+        main_rom[DIV]++;
+    }
+}
+
+BYTE get_clock_frequency()
+{
+    return read_memory(TMC) & 0b11;
+}
+
+void set_clock_frequency()
+{
+    BYTE freq = get_clock_frequency();
+    switch(freq) {
+        case 0: timer_counter = CLOCKSPEED / 4096; break;
+        case 1: timer_counter = CLOCKSPEED / 262144; break;
+        case 2: timer_counter = CLOCKSPEED / 65536; break;
+        case 3: timer_counter = CLOCKSPEED / 16384; break;
+    }
+}
+

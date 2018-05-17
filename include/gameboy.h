@@ -73,9 +73,18 @@ BYTE current_ram_bank;
 BYTE banking_mode;
 
 //Timers
+#define DIV 0xFF04
 #define TIMA 0xFF05
 #define TMA 0xFF06
 #define TMC 0xFF07
+
+#define CLOCKSPEED 4194304
+int timer_counter;
+int divider_counter;
+
+//Interrupts
+#define IE 0xFFFF
+#define IF 0xFF0F
 
 //Screen (size 160X144 px, each pixel is RGB)
 BYTE screen_data[160][144][3];
@@ -93,5 +102,13 @@ BYTE read_memory(WORD address);
 void open_game();
 
 void check_game_banking_mode();
+
+BYTE clock_enabled();
+
+void update_timers(int cycles);
+
+void increase_divider_register(int cycles);
+BYTE get_clock_frequency();
+void set_clock_frequency();
 
 #endif
