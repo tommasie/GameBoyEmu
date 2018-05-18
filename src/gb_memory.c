@@ -1,5 +1,7 @@
 #include "gb_memory.h"
 #include "gb_timer.h"
+#include "gb_lcd.h"
+
 void write_memory(WORD address, BYTE data) {
     //If program tries to write into the read only area [0x0,0x8000]
     //then banking is happening
@@ -38,8 +40,13 @@ void write_memory(WORD address, BYTE data) {
     }
 
     //Reset the current scanline if the game tries to write to it
-    else if (address == 0xFF44) {
+    else if (address == CURR_SCANLINE_ADDR) {
         main_rom[address] = 0 ;
+    }
+
+    //DMA sprite transfer
+    else if(address == DMA) {
+        dma_transfer(data);
     }
 
     //Otherwise write
