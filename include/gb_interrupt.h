@@ -1,4 +1,7 @@
-#include "gameboy.h"
+#ifndef GB_INTERRUPT_H
+#define GB_INTERRUPT_H
+
+#include "gb_structs.h"
 
 /** Interrupts **/
 //Interrupt Enable
@@ -11,3 +14,5 @@ BYTE IME;
 void request_interrupt(int id);
 void exec_interrupts();
 void serve_interrupt(int interrupt);
+
+#endif

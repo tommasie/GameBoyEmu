@@ -1,10 +1,11 @@
-#include "gameboy.h"
+#include "gb_emulator.h"
 #include <string.h>
+#include "gb_structs.h"
 #include "gb_memory.h"
 #include "gb_timer.h"
 #include "gb_interrupt.h"
 
-void init()
+void power_up()
 {
     //Program counter and stack pointer
     pc = 0x100;
@@ -76,8 +77,11 @@ void open_game()
         fprintf(stderr, "Errore lettura del file\n");
         return;
     }
-    fread(cartridge_memory,sizeof(BYTE), sizeof(cartridge_memory), in);
+    fread(cartridge_memory, sizeof(BYTE), sizeof(cartridge_memory), in);
     fclose(in);
+
+    memcpy(main_rom, cartridge_memory, 0x8000);
+    current_rom_bank = 1;
 }
 
 void show_nintendo_logo()
@@ -87,4 +91,55 @@ void show_nintendo_logo()
         printf("%02x ", cartridge_memory[i]);
     }
     printf("\n");
+}
+
+void print_cartridge_data()
+{
+    //Title
+    printf("Title: ");
+    int i;
+    for(i = 0x0134; i < 0x0144; i++) {
+        printf("%c", cartridge_memory[i]);
+    }
+    printf("\n");
+
+    //New Licensee Code
+    if(cartridge_memory[0x0144] || cartridge_memory[0x0145]) {
+        printf("New Licensee Code: %c%c\n", cartridge_memory[0x0144], cartridge_memory[0x0145]);
+    }
+    //SGB Flag
+    printf("SGB Flag: %02x\n", cartridge_memory[0x0146]);
+    //Cartridge Type
+    printf("Cartridge Type: %02x\n", cartridge_memory[0x0147]);
+    //ROM Size
+    printf("ROM Size: %02x\n", cartridge_memory[0x0148]);
+    //RAM Size
+    printf("RAM Size: %02x\n", cartridge_memory[0x0149]);
+    //Destination code
+    printf("Destination code: %02x\n", cartridge_memory[0x014A]);
+    //Old Licensee Code
+    if(cartridge_memory[0x014B]) {
+        printf("Old Licensee Code: %02x\n", cartridge_memory[0x014B]);
+    }
+    //Mask ROM version
+    printf("Mask ROM version: %02x\n", cartridge_memory[0x014C]);
+
+    //Header checksum
+    BYTE x = 0;
+    for(i = 0x0134; i < 0x014D; i++) {
+        x = x - cartridge_memory[i] - 1;
+    }
+    printf("Computed header checksum: %02x\n", x);
+    printf("Stored header checksum: %02x\n", cartridge_memory[0x014D]);
+    printf("Header checksum correct? %d\n", x == cartridge_memory[0x014D]);
+
+    //Global checksum
+    printf("Stored global checksum: %02x%02x\n", cartridge_memory[0x014E], cartridge_memory[0x014F]);
+    WORD y = 0;
+    for(i = 0x00; i < 0x200000; i++) {
+        if(!(i == 0x014E || i == 0x014F)) {
+            y += cartridge_memory[i];
+        }
+    }
+    printf("Computed global checksum: %04x\n", y);
 }

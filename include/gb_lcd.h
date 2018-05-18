@@ -1,4 +1,7 @@
-#include "gameboy.h"
+#ifndef GB_LCD_H
+#define GB_LCD_H
+
+#include "gb_structs.h"
 
 //LCD Control
 #define LCDC 0xFF40
@@ -56,3 +59,5 @@ void render_sprites();
 
 COLOUR get_colour(BYTE colour_num, WORD address);
 int BitGetVal(BYTE data, int position);
+
+#endif

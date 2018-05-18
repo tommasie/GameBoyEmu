@@ -1,4 +1,7 @@
-#include "gameboy.h"
+#ifndef GB_MEMORY_H
+#define GB_MEMORY_H
+
+#include "gb_structs.h"
 
 //Gameboy ROM memory (range from 0x0 to 0xFFFF)
 BYTE main_rom[0x10000];
@@ -36,3 +39,5 @@ void handle_banking(WORD address, BYTE data);
 BYTE read_memory(WORD address);
 
 void check_game_banking_mode();
+
+#endif

@@ -1,8 +1,5 @@
-#ifndef GAMEBOY_H
-#define GAMEBOY_H
-
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef GB_STRUCTS_H
+#define GB_STRUCTS_H
 
 //Basic data types
 typedef unsigned char BYTE;
@@ -42,13 +39,5 @@ WORD pc;
 
 //Stack pointer (initialized to 0xFFFE)
 Register sp;
-
-//Functions
-//Power-up sequence
-void init();
-
-void open_game();
-
-void show_nintendo_logo();
 
 #endif

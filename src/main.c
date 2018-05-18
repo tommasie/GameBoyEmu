@@ -1,9 +1,14 @@
 #include <stdio.h>
-#include "gameboy.h"
+#include "gb_emulator.h"
+#include "gb_sdl.h"
 int main()
 {
-    init();
+    power_up();
     open_game();
-    show_nintendo_logo();
+    print_cartridge_data();
+
+    create_SDL_window();
+    render_game();
+    close1();
     return 0;
 }

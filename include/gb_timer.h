@@ -1,4 +1,8 @@
-#include "gameboy.h"
+#ifndef GB_TIMER_H
+#define GB_TIMER_H
+
+#include "gb_structs.h"
+
 //CPU clock frequency (4.194304MHz)
 #define CLOCKSPEED 4194304
 /** Registers **/
@@ -21,3 +25,5 @@ void update_timers(int cycles);
 void increase_divider_register(int cycles);
 BYTE get_clock_frequency();
 void set_clock_frequency();
+
+#endif
